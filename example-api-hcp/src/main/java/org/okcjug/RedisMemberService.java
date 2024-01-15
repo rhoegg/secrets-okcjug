@@ -24,9 +24,6 @@ public class RedisMemberService {
     private final ReactiveHashCommands<String, String, Date> dateFieldCommands;
     private final ReactiveValueCommands<String, Long> counterCommands;
 
-    @ConfigProperty(name = "redis_password")
-    String secret;
-
     public RedisMemberService(ReactiveRedisDataSource ds) {
         longSetCommands = ds.set(Long.class);
         longFieldCommands = ds.hash(Long.class);

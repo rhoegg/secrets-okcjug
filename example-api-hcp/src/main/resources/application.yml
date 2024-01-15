@@ -1,7 +1,9 @@
 quarkus:
   vault:
     url: https://vault-public-vault-7d8a2d47.0c749df7.z1.hashicorp.cloud:8200
-    secret-config-kv-path: /secrets/secret/okcjug
+    secret-config-kv-path: okcjug
+    enterprise:
+      namespace: admin
   redis:
     hosts: redis://redis-14088.c251.east-us-mz.azure.cloud.redislabs.com:14088
     password: ${redispassword}
