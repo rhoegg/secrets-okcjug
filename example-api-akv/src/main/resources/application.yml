@@ -1,2 +1,8 @@
 quarkus:
-
+azure:
+  keyvault:
+    url:
+  sp:
+    tenant: 3dc7d111-ba22-42a6-a49d-7f045fbb5a45
+    client: 07a2beb5-57b4-4c1b-b5ab-e4780b851b84
+    secret: ivd8Q~Lq3Ti129.u38N.H8MJ0i2jULqUhHGN-b0M
