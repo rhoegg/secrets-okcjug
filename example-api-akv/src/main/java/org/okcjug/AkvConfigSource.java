@@ -6,23 +6,39 @@ import jakarta.inject.Inject;
 import org.eclipse.microprofile.config.spi.ConfigSource;
 
 import java.lang.annotation.Annotation;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.Set;
 
-@ApplicationScoped
 public class AkvConfigSource implements ConfigSource {
+
+    AkvClient akvClient;
+    private volatile boolean firstTime = true;
+    private Set<String> propertyNames = new HashSet<>();
+
+    public AkvConfigSource(AkvClient akvClient) {
+        this.akvClient = akvClient;
+    }
     @Override
     public Set<String> getPropertyNames() {
-        return getClient().getSecretNames().await().indefinitely();
+        return Collections.emptySet();
     }
 
     @Override
     public int getOrdinal() {
-        return 127;
+        return 50;
     }
 
     @Override
     public String getValue(String secretName) {
-        return getClient().getSecret(secretName).await().indefinitely();
+        if (firstTime) {
+            propertyNames = akvClient.getSecretNames().await().indefinitely();
+            firstTime = false;
+        }
+        if (! propertyNames.contains(secretName)) {
+            return null;
+        }
+        return akvClient.getSecret(secretName).await().indefinitely();
     }
 
     @Override
@@ -30,7 +46,4 @@ public class AkvConfigSource implements ConfigSource {
         return "azureKeyVault";
     }
 
-    private AkvClient getClient() {
-        return (AkvClient) Arc.container().instance(AkvClient.class);
-    }
 }

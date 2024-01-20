@@ -12,18 +12,19 @@ import io.smallrye.mutiny.Uni;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.ws.rs.client.Client;
+import mutiny.zero.flow.adapters.AdaptersToFlow;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 import io.smallrye.mutiny.converters.uni.UniReactorConverters;
+import org.reactivestreams.Publisher;
 import reactor.core.publisher.Mono;
 
 import java.util.Set;
 import java.util.concurrent.Flow;
 
-@ApplicationScoped
 public class AkvClient {
 
     private SecretAsyncClient secretClient;
-    public AkvClient(AzureServicePrincipal sp, @ConfigProperty(name = "azure.keyvault.url") String url) {
+    public AkvClient(AzureServicePrincipal sp, String url) {
         ClientSecretCredential cred = new ClientSecretCredentialBuilder()
                 .tenantId(sp.tenant())
                 .clientId(sp.client())
@@ -37,13 +38,13 @@ public class AkvClient {
 
     public Uni<String> getSecret(String secretName) {
         return Uni.createFrom()
-                .publisher((Flow.Publisher<KeyVaultSecret>) secretClient.getSecret(secretName))
+                .publisher(AdaptersToFlow.publisher(secretClient.getSecret(secretName)))
                 .map(secret -> secret.getValue());
     }
 
     public Uni<Set<String>> getSecretNames() {
         return Multi.createFrom()
-                .publisher((Flow.Publisher<SecretProperties>)secretClient.listPropertiesOfSecrets())
+                .publisher(AdaptersToFlow.publisher(secretClient.listPropertiesOfSecrets()))
                 .map(secretProps -> secretProps.getName())
                 .collect().asSet();
     }
